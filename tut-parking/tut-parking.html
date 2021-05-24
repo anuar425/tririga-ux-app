@@ -1,0 +1,120 @@
+<link rel="import" href="../triplat-view-behavior/triplat-view-behavior.html">
+<link rel="import" href="../triplat-ds/triplat-ds.html">
+<link rel="import" href="../triplat-search-input/triplat-search-input.html">
+<link rel="import" href="../triplat-routing/triplat-routing.html">
+
+<link rel="import" href="../iron-list/iron-list.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-pages/iron-pages.html">
+
+
+<link rel="import" href="../paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../paper-card/paper-card.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+
+<link rel="import" href="tut-person.html">
+
+<dom-module id="tut-parking">
+	<style>
+		:host {
+			@apply(--layout-flex);
+		}
+
+		.toolbar {
+			@apply(--layout-flex);
+			@apply(--layout-horizontal);
+			@apply(--layout-justified);
+			@apply(--layout-center);
+		}
+
+		iron-list {
+			@apply(--layout-fit);
+		}
+
+		.person {
+			@apply(--layout-vertical);
+			@apply(--layout-center);
+		}
+
+		.person paper-card {
+			width: 300px;
+			padding: 25px;
+			margin: 15px;
+			@apply(--layout-horizontal);
+			@apply(--layout-center);
+		}
+
+		.person div {
+			padding-right: 5px;
+		}
+	</style>
+	<template>
+
+		<triplat-route name="people" path="/"></triplat-route>
+		<triplat-route id="personRoute" name="person" path="/:personId"></triplat-route>
+
+		<triplat-ds name="parking" filtered-data="{{parking}}">
+			<triplat-query>
+				<triplat-query-filter name="firstName" operator="contains" value="{{filterValue}}" ignore-if-blank></triplat-query-filter>
+				<triplat-query-or></triplat-query-or>
+				<triplat-query-filter name="lastName" operator="contains" value="{{filterValue}}" ignore-if-blank></triplat-query-filter>
+				<triplat-query-sort name="firstName"></triplat-query-sort>
+			</triplat-query>
+		</triplat-ds>
+
+		<paper-header-panel class="flex">
+
+			<paper-toolbar>	
+				<div class="toolbar">
+					<div>Parking</div>
+					<triplat-search-input value="{{filterValue}}">
+
+					</triplat-search-input>
+				</div>
+			</paper-toolbar>
+	
+			<div class="content">
+				<triplat-route-selector>
+					<iron-pages>
+
+
+						<section route="people" default-route>
+							<iron-list id="ironList" items="{{parking}}">
+								<template>
+									<div class="person">
+										<paper-card>
+											<div>{{item.firstName}}</div>
+											<div class="flex">{{item.lastName}}</div>
+											<paper-icon-button icon="face" on-tap="_onPersonTap"></paper-icon-button>
+										</paper-card>
+									</div>
+								</template>
+							</iron-list>
+						</section>
+
+						<tut-person route="person"></tut-person>
+
+					</iron-pages>
+				</triplat-route-selector>
+			</div>
+
+		</paper-header-panel>	
+		
+	</template>
+</dom-module>
+<script>
+	Polymer({
+
+		is: "tut-parking",
+
+		behaviors: [TriPlatViewBehavior],
+
+		_onPersonTap: function(e) {
+			var model = this.$.ironList.modelForElement(e.target);
+			var person = model.item;
+			this.$.personRoute.navigate({personId: person._id});
+		}
+
+	});
+</script>
